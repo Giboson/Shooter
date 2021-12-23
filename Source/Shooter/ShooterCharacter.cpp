@@ -42,6 +42,8 @@ void AShooterCharacter::BeginPlay()
 
 	FString myString{ TEXT("My String!!!!") };
 	UE_LOG(LogTemp, Warning, TEXT("FString myString: %s"), *myString);
+
+	UE_LOG(LogTemp, Warning, TEXT("Name of instance: %s"), *GetName());
 }
 
 // Called every frame
