@@ -29,9 +29,11 @@ public:
 
 
 private:
-
-
+	/** Camera Boom positioning the camera behind the character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class USpringArmComponent* CameraBoom;
 
 public:
-
+	/** Returns CameraBoom subobject */
+	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 };
