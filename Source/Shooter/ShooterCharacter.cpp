@@ -16,7 +16,8 @@ void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	/*
+	/**
+	* 
 	* Info logTemp
 	* бшбнд дюммшу вепег йнмянкэ( ноепюрнпш )напюгеж
 	* 
