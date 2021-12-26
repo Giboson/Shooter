@@ -43,7 +43,10 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		if (ShooterCharacter->GetVelocity().Size() > 0.f)
 		{
 			LastMovementOffsetYaw = MovementOffsetYaw;
+
 		}
+		// 
+		bAiming = ShooterCharacter->GetAinming();
 	}
 }
 
