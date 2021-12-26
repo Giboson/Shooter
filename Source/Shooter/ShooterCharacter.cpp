@@ -9,6 +9,8 @@
 #include "Sound/SoundCue.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "DrawDebugHelpers.h"
+#include "Particles/ParticleSystemComponent.h"
+
 
 // Sets default values
 AShooterCharacter::AShooterCharacter() :
@@ -128,7 +130,6 @@ void AShooterCharacter::LookUpAtRate(float Rate)
 
 void AShooterCharacter::FireWeapon()
 {
-	// test clic UE_LOG(LogTemp, Warning, TEXT("Fire Weapon."));
 	if (FireSound)
 	{
 		UGameplayStatics::PlaySound2D(this, FireSound);
@@ -149,22 +150,38 @@ void AShooterCharacter::FireWeapon()
 		const FVector RotationAxis{ Rotation.GetAxisX() };
 		const FVector End{ Start + RotationAxis * 50'000.f };
 
+		FVector BeamEndPoint{ End };
+
 		GetWorld()->LineTraceSingleByChannel(FireHit, Start, End, ECollisionChannel::ECC_Visibility);
 		if (FireHit.bBlockingHit)
 		{
-			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.f);
-			DrawDebugPoint(GetWorld(), FireHit.Location, 5.f, FColor::Red, false, 2.f);
+			//DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.f);
+			//DrawDebugPoint(GetWorld(), FireHit.Location, 5.f, FColor::Red, false, 2.f);
+
+			BeamEndPoint = FireHit.Location;
+
+			if (ImpactParticles)
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, FireHit.Location);
+			}
 		}
 
-		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-		if (AnimInstance && HipFireMontage)
+		if (BeamParticles)
 		{
-			AnimInstance->Montage_Play(HipFireMontage);
-			AnimInstance->Montage_JumpToSection(FName("StartFire"));
+			UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BeamParticles, SocketTransform);
+			if (Beam)
+			{
+				Beam->SetVectorParameter(FName("Target"), BeamEndPoint);
+			}
 		}
 	}
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && HipFireMontage)
+	{
+		AnimInstance->Montage_Play(HipFireMontage);
+		AnimInstance->Montage_JumpToSection(FName("StartFire"));
+	}
 }
-
 // Called every frame
 void AShooterCharacter::Tick(float DeltaTime)
 {
