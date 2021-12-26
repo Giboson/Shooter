@@ -92,6 +92,14 @@ private:
 	/** True when aiming */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 		bool bAiming;
+	
+	/** Default camera filed of view value */
+		float CameraDefaultFOV;
+
+	/** Filed of view value for when zoomed in */
+		float CameraZoomedFOV;
+
+
 
 public:
 	/** Returns CameraBoom subobject */
