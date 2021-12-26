@@ -2,7 +2,7 @@
 
 
 #include "ShooterCharacter.h"
-#include "GameFramework\SpringArmComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -11,34 +11,33 @@
 #include "DrawDebugHelpers.h"
 #include "Particles/ParticleSystemComponent.h"
 
-
 // Sets default values
 AShooterCharacter::AShooterCharacter() :
-	// Base rates for turning/looking up
 	BaseTurnRate(45.f),
 	BaseLookUpRate(45.f)
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	// Create a camera boom (pulls in towards the character if there is a collison)
+
+	// Create a camera boom (pulls in towards the character if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 300.f; // The Camera Followe at this distance dehind the character
+	CameraBoom->TargetArmLength = 300.f; // The camera follows at this distance behind the character
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
-
+	CameraBoom->SocketOffset = FVector(0.f, 50.f, 50.f);
 
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach camera to end fo boom
-	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm 
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach camera to end of boom
+	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	// Don't rotate when the controller rotates. Let the controller only affect the camera.
 	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
+	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
 
 	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...
+	GetCharacterMovement()->bOrientRotationToMovement = false; // Character moves in the direction of input...
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f); // ... at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.2f;
@@ -49,55 +48,19 @@ void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	/**
-	* 
-	* Info logTemp
-	* ÂÛÂÎÄ ÄÀÍÍÛÕ ×ÅÐÅÇ ÊÎÍÑÎËÜ( ÎÏÅÐÀÒÎÐÛ )ÎÁÐÀÇÅÖ
-	* 
-	* UE_LOG(LogTemp, Warning, TEXT("BeginPlay() Called!"));
-	* 
-	* int myInt{ (int)42.54 };
-	* int myInt{ 42 };
-	* UE_LOG(LogTemp, Warning, TEXT("int myInt: %d"), myInt);
-	* 
-	* float myFloat{ 3.14159f };
-	* UE_LOG(LogTemp, Warning, TEXT("float myFloat: %f"), myFloat);
-	* 
-	* double myDouble{ 0.000756 };
-	* UE_LOG(LogTemp, Warning, TEXT("double myDouble: %lf"), myDouble);
-	* 
-	* char MyChar{ 'A' };
-	* UE_LOG(LogTemp, Warning, TEXT("char MyChar: %c"), MyChar);
-	* 
-	* wchar_t wideChar{L'A'};
-	* UE_LOG(LogTemp, Warning, TEXT("wchar_t wideChar: %lc"), wideChar);
-	* 
-	* bool myBool{true};
-	* UE_LOG(LogTemp, Warning, TEXT("bool myBool: %d"), myBool);
-	* info 1 // UE_LOG(LogTemp, Warning, TEXT("int: %d, float: %f bool: %d"), myInt, myFloat, myBool);
-	* info 0 // UE_LOG(LogTemp, Warning, TEXT("int: %d, float: %f bool: %d"), myInt, myFloat, false);
-	* 
-	* FString myString{ TEXT("My String!!!!") };
-	* UE_LOG(LogTemp, Warning, TEXT("FString myString: %s"), *myString);
-	* UE_LOG(LogTemp, Warning, TEXT("Name of instance: %s"), *GetName());
-	* 
-	*/
-
 
 }
 
 void AShooterCharacter::MoveForward(float Value)
 {
-	if ((Controller != nullptr) && (Value != 0.0f)) 
+	if ((Controller != nullptr) && (Value != 0.0f))
 	{
-		// find out whith way is forward
+		// find out which way is forward
 		const FRotator Rotation{ Controller->GetControlRotation() };
-		const FRotator YawRotator{ 0, Rotation.Yaw, 0 };
+		const FRotator YawRotation{ 0, Rotation.Yaw, 0 };
 
-		const FVector Direction{ FRotationMatrix{YawRotator}.GetUnitAxis(EAxis::X) };
+		const FVector Direction{ FRotationMatrix{YawRotation}.GetUnitAxis(EAxis::X) };
 		AddMovementInput(Direction, Value);
-
-
 	}
 }
 
@@ -105,26 +68,23 @@ void AShooterCharacter::MoveRight(float Value)
 {
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
-		// find out whith way is right
+		// find out which way is right
 		const FRotator Rotation{ Controller->GetControlRotation() };
-		const FRotator YawRotator{ 0, Rotation.Yaw, 0 };
+		const FRotator YawRotation{ 0, Rotation.Yaw, 0 };
 
-		const FVector Direction{ FRotationMatrix{YawRotator}.GetUnitAxis(EAxis::Y) };
+		const FVector Direction{ FRotationMatrix{YawRotation}.GetUnitAxis(EAxis::Y) };
 		AddMovementInput(Direction, Value);
-
-
 	}
 }
 
 void AShooterCharacter::TurnAtRate(float Rate)
 {
-	// calculete delta for this frame from the rate inforamtion
+	// calculate delta for this frame from the rate information
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds()); // deg/sec * sec/frame
 }
 
 void AShooterCharacter::LookUpAtRate(float Rate)
 {
-	
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds()); // deg/sec * sec/frame
 }
 
@@ -144,6 +104,67 @@ void AShooterCharacter::FireWeapon()
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SocketTransform);
 		}
 
+		// Get current size of the viewport
+		FVector2D ViewportSize;
+		if (GEngine && GEngine->GameViewport)
+		{
+			GEngine->GameViewport->GetViewportSize(ViewportSize);
+		}
+
+		// Get screen space location of crosshairs
+		FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
+		CrosshairLocation.Y -= 50.f;
+		FVector CrosshairWorldPosition;
+		FVector CrosshairWorldDirection;
+
+		// Get world position and direction of crosshairs
+		bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(
+			UGameplayStatics::GetPlayerController(this, 0),
+			CrosshairLocation,
+			CrosshairWorldPosition,
+			CrosshairWorldDirection);
+
+		if (bScreenToWorld) // was deprojection successful?
+		{
+			FHitResult ScreenTraceHit;
+			const FVector Start{ CrosshairWorldPosition };
+			const FVector End{ CrosshairWorldPosition + CrosshairWorldDirection * 50'000.f };
+
+			// Set beam end point to line trace end point
+			FVector BeamEndPoint{ End };
+
+			// Trace outward from crosshairs world location
+			GetWorld()->LineTraceSingleByChannel(
+				ScreenTraceHit,
+				Start,
+				End,
+				ECollisionChannel::ECC_Visibility);
+			if (ScreenTraceHit.bBlockingHit) // was there a trace hit?
+			{
+				// Beam end point is now trace hit location
+				BeamEndPoint = ScreenTraceHit.Location;
+				if (ImpactParticles)
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(
+						GetWorld(),
+						ImpactParticles,
+						ScreenTraceHit.Location);
+				}
+			}
+			if (BeamParticles)
+			{
+				UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(
+					GetWorld(),
+					BeamParticles,
+					SocketTransform);
+				if (Beam)
+				{
+					Beam->SetVectorParameter(FName("Target"), BeamEndPoint);
+				}
+			}
+		}
+
+		/*
 		FHitResult FireHit;
 		const FVector Start{ SocketTransform.GetLocation() };
 		const FQuat Rotation{ SocketTransform.GetRotation() };
@@ -174,6 +195,7 @@ void AShooterCharacter::FireWeapon()
 				Beam->SetVectorParameter(FName("Target"), BeamEndPoint);
 			}
 		}
+		*/
 	}
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && HipFireMontage)
@@ -182,6 +204,7 @@ void AShooterCharacter::FireWeapon()
 		AnimInstance->Montage_JumpToSection(FName("StartFire"));
 	}
 }
+
 // Called every frame
 void AShooterCharacter::Tick(float DeltaTime)
 {
@@ -204,9 +227,7 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-	
-	PlayerInputComponent->BindAction("FireButton", IE_Pressed, this, &AShooterCharacter::FireWeapon);
-	
 
+	PlayerInputComponent->BindAction("FireButton", IE_Pressed, this, &AShooterCharacter::FireWeapon);
 }
 
