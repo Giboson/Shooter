@@ -46,6 +46,10 @@ protected:
 	void AimingButtonPressed();
 	void AimingButtonReleased();
 	void CameraInterpZoom(float DeltaTime);
+	
+	/** Set  BaseTurnRate and BaselookUpRate based on aiming */
+	void SetLookRates();
+
 
 public:
 	// Called every frame
@@ -103,9 +107,25 @@ private:
 	/** Current filed of view this frame */
 		float CameraCurrentFOV;
 
-	/** Interp speed for zooming when aiming */
+		/** Interp speed for zooming when aiming */
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 		float ZoomInterpSpeed;
+
+		/** Turn rate while not aiming */
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		float HipTurnRate;
+
+		/** Look up rate when not aiming */
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		float HipLookUpRate;
+
+		/** Turn rate when aiming */
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		float AimingTrunRate;
+
+		/** Look up rate when aiming */
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		float AimingLookUpRate;
 
 public:
 	/** Returns CameraBoom subobject */

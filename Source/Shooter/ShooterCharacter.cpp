@@ -13,13 +13,24 @@
 
 // Sets default values
 AShooterCharacter::AShooterCharacter() :
+	
+	// Base rates for truning/looking up
+
 	BaseTurnRate(45.f),
 	BaseLookUpRate(45.f),
 	bAiming(false),
+
+	// comera field of view values
 	CameraDefaultFOV(0.f),	// set in BigenPlay
 	CameraZoomedFOV(35.f),
 	CameraCurrentFOV(0.f),
-	ZoomInterpSpeed(20.f)
+	ZoomInterpSpeed(20.f),
+
+	// Trun rates for  aiming/not aiming
+	HipTurnRate(90.f),
+	HipLookUpRate(90.f),
+	AimingTrunRate(20.f),
+	AimingLookUpRate(20.f)
 
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -243,6 +254,25 @@ void AShooterCharacter::CameraInterpZoom(float DeltaTime)
 	}
 }
 
+void AShooterCharacter::SetLookRates()
+{
+	if (bAiming)
+	{
+		/** Trun raite */
+		BaseTurnRate = AimingTrunRate;
+		/** look up rate */
+		BaseLookUpRate = AimingLookUpRate;
+
+	}
+	else
+	{
+		/** Trun raite */
+		BaseTurnRate = HipTurnRate;
+		/** look up rate */
+		BaseLookUpRate = HipLookUpRate;
+	}
+}
+
 // Called every frame
 void AShooterCharacter::Tick(float DeltaTime)
 
@@ -250,6 +280,9 @@ void AShooterCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	// Handel Interpolat for zoom hwen aining
 	CameraInterpZoom(DeltaTime);
+	// Change look sensitivity
+	SetLookRates();
+	
 }
 		
 
