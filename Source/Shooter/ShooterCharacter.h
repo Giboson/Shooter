@@ -37,6 +37,15 @@ protected:
 	*/
 	void LookUpAtRate(float Rate);
 
+	/**
+	* Rotate controller based on mouse X movement
+	* @param Rate  This is a normalized rate, i.e. 1.0 means 100% of desired rate
+	*/
+	void Trun(float Value);
+
+	void LookUp(float Value);
+
+
 	/** Called when the Fire Button is pressed */
 	void FireWeapon();
 
@@ -49,6 +58,9 @@ protected:
 	
 	/** Set  BaseTurnRate and BaselookUpRate based on aiming */
 	void SetLookRates();
+
+	/** */
+	
 
 
 public:
