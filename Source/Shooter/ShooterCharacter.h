@@ -39,10 +39,14 @@ protected:
 
 	/**
 	* Rotate controller based on mouse X movement
-	* @param Rate  This is a normalized rate, i.e. 1.0 means 100% of desired rate
+	* @param Value the input value from mouse movment   
 	*/
-	void Trun(float Value);
+	void Turn(float Value);
 
+	/**
+	* Rotate controller based on mouse Y movement
+	* @param Value the input value from mouse movment
+	*/
 	void LookUp(float Value);
 
 
