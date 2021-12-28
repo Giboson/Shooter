@@ -18,19 +18,26 @@ AShooterCharacter::AShooterCharacter() :
 
 	BaseTurnRate(45.f),
 	BaseLookUpRate(45.f),
-	bAiming(false),
-
-	// comera field of view values
-	CameraDefaultFOV(0.f),	// set in BigenPlay
-	CameraZoomedFOV(35.f),
-	CameraCurrentFOV(0.f),
-	ZoomInterpSpeed(20.f),
 
 	// Trun rates for  aiming/not aiming
 	HipTurnRate(90.f),
 	HipLookUpRate(90.f),
 	AimingTrunRate(20.f),
-	AimingLookUpRate(20.f)
+	AimingLookUpRate(20.f),
+	// mouse look sensitivity scale factors
+	MouseHipTurnRate(1.0f),
+	MouseHipLookUpRate(1.0f),
+	MouseAimingTurnRate(0.2f),
+	MouseAimingLookUpRate(0.2f),
+	// true when aiming the weapon
+	bAiming(false),
+	// comera field of view values
+	CameraDefaultFOV(0.f),	// set in BigenPlay
+	CameraZoomedFOV(35.f),
+	CameraCurrentFOV(0.f),
+	ZoomInterpSpeed(20.f)
+
+
 
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -111,12 +118,30 @@ void AShooterCharacter::LookUpAtRate(float Rate)
 
 void AShooterCharacter::Turn(float Value)
 {
-
+	float TurnScaleFactor{};
+	if (bAiming)
+	{
+		TurnScaleFactor = MouseAimingTurnRate;
+	}
+	else
+	{
+		TurnScaleFactor = MouseHipTurnRate;
+	}
+	AddControllerYawInput(Value * TurnScaleFactor);
 }
 
 void AShooterCharacter::LookUp(float Value)
 {
-
+	float LookUpScaleFactor{};
+	if (bAiming)
+	{
+		LookUpScaleFactor = MouseAimingLookUpRate;
+	}
+	else
+	{
+		LookUpScaleFactor = MouseHipLookUpRate;
+	}
+	AddControllerPitchInput(Value * LookUpScaleFactor);
 }
 
 void AShooterCharacter::FireWeapon()
