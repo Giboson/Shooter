@@ -64,7 +64,11 @@ protected:
 	void SetLookRates();
 
 	void CalculateCrosshairSpread(float DeltaTime);
-	
+
+	void StartCrosshairBulletFire();
+
+	UFUNCTION()
+	void FinishCrosshairBulletFire();
 
 
 public:
@@ -155,6 +159,9 @@ private:
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Crosshairs, meta = (AllowPrivateAccess = "true"))
 		float CrosshairShootingFactor;
 		
+		float ShootTimeDuration;
+		bool bFiringBullet;
+		FTimerHandle CrosshairShootTimer;
 
 
 
@@ -169,7 +176,7 @@ public:
 	FORCEINLINE bool GetAinming() const { return bAiming; }
 
 	/** Determines the spread of the crosshairs */
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Crosshairs, meta = (AllowPrivateAccess = "true"))
+	UFUNCTION(BlueprintCallable)
 	float GetCrosshairSpreadMultiplier() const;
 
 };
