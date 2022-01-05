@@ -13,7 +13,7 @@
 
 // Sets default values
 AShooterCharacter::AShooterCharacter() :
-	
+
 	// Base rates for truning/looking up
 
 	BaseTurnRate(45.f),
@@ -42,8 +42,13 @@ AShooterCharacter::AShooterCharacter() :
 	CrosshairInAirFactor(0.f),
 	CrosshairAimFactor(0.f),
 	CrosshairShootingFactor(0.f),
+	// Automatic gun fire rate
+	AutomaticFireRate(0.1f),
 	// Bullet fire timer variables
 	ShootTimeDuration(0.05f),
+	// Automatic fire variables 
+	bShouldFire(true),
+	bFireButtonPressed(false),
 	bFiringBullet(false)
 
 
@@ -400,6 +405,36 @@ void AShooterCharacter::FinishCrosshairBulletFire()
 	bFiringBullet = false;
 }
 
+void AShooterCharacter::FireButtonPressed()
+{
+	bFireButtonPressed = true;
+	StratFireTime();
+}
+
+void AShooterCharacter::FireButtonReleased()
+{
+	bFireButtonPressed = false;
+}
+
+void AShooterCharacter::StratFireTime()
+{
+	if (bShouldFire) 
+	{
+		FireWeapon();
+		bShouldFire = false;
+		GetWorldTimerManager().SetTimer(AutoFireTimer, this, &AShooterCharacter::AutoFireReset, AutomaticFireRate);
+	}
+}
+
+void AShooterCharacter::AutoFireReset()
+{
+	bShouldFire = true;
+	if (bFireButtonPressed)
+	{
+		StratFireTime();
+	}
+}
+
 // Called every frame
 void AShooterCharacter::Tick(float DeltaTime)
 
@@ -438,7 +473,9 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-	PlayerInputComponent->BindAction("FireButton", IE_Pressed, this, &AShooterCharacter::FireWeapon);
+	PlayerInputComponent->BindAction("FireButton", IE_Pressed, this, &AShooterCharacter::FireButtonPressed);
+	PlayerInputComponent->BindAction("FireButton", IE_Released, this, &AShooterCharacter::FireButtonReleased);
+
 	PlayerInputComponent->BindAction("AimingButton", IE_Pressed, this, &AShooterCharacter::AimingButtonPressed);
 	PlayerInputComponent->BindAction("AimingButton", IE_Released, this, &AShooterCharacter::AimingButtonReleased);
 }
