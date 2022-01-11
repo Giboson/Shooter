@@ -495,6 +495,8 @@ void AShooterCharacter::SpawnDefaultWeapon()
 			HandSocket->AttachActor(DefaultWeapon, GetMesh());
 
 		}
+		// Set EquippedWeapon to the newly spawned Weapon
+		EquippedWeapon = DefaultWeapon;
 	}
 
 }
