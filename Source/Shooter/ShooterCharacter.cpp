@@ -187,16 +187,10 @@ void AShooterCharacter::FireWeapon()
 		{
 			if (ImpactParticles)
 			{
-				UGameplayStatics::SpawnEmitterAtLocation(
-					GetWorld(),
-					ImpactParticles,
-					BeamEnd);
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, BeamEnd);
 			}
 
-			UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(
-				GetWorld(),
-				BeamParticles,
-				SocketTransform);
+			UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BeamParticles, SocketTransform);
 			if (Beam)
 			{
 				Beam->SetVectorParameter(FName("Target"), BeamEnd);
@@ -451,14 +445,34 @@ void AShooterCharacter::TraceForItems()
 		TraceUnderCrosshairs(ItemTraceResult, HitLocation);
 		if (ItemTraceResult.bBlockingHit)
 		{
-			// GetAcor UE5
+			// = GetActor UE5 
+			// = Actor UE4
 			AItem* HitItem = Cast<AItem>(ItemTraceResult.GetActor());
 			if (HitItem && HitItem->GetPickupWidget())
 			{
 				// Show Item's Picup Widget
 				HitItem->GetPickupWidget()->SetVisibility(true);
 			}
+			// We hit an AItem lest frame
+			if (TraceHitItemLastFrame) 
+			{
+				if (HitItem != TraceHitItemLastFrame) 
+				{
+					// we are hitting a different AItem this frame form last frame
+					// Or AItem is null.
+					TraceHitItemLastFrame->GetPickupWidget()->SetVisibility(false);
+				}
+			}
+			// Show a refernce to HitItem for next frame
+			TraceHitItemLastFrame = HitItem;
+
 		}
+	}
+	else if (TraceHitItemLastFrame) 
+	{
+		// No longer overlapping any items,
+		// Item last frame should not show widget
+		TraceHitItemLastFrame->GetPickupWidget()->SetVisibility(false);
 	}
 }
 
