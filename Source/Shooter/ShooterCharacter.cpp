@@ -13,6 +13,8 @@
 #include "Item.h"
 #include "Components/WidgetComponent.h"
 #include "Weapon.h"
+#include "Components/SphereComponent.h"
+#include "Components/BoxComponent.h"
 
 //#include "Engine/EngineTypes.h"
 
@@ -98,8 +100,9 @@ void AShooterCharacter::BeginPlay()
 		CameraDefaultFOV = GetFollowCamera()->FieldOfView;
 		CameraCurrentFOV = CameraDefaultFOV;
 	}
-	// Spawn the default weapon and  attach it to the mesh 
-	SpawnDefaultWeapon();
+	// Spawn the default weapon and  equip it
+	EquipWeapon(SpawnDefaultWeapon());
+
 }
 
 void AShooterCharacter::MoveForward(float Value)
@@ -479,26 +482,16 @@ void AShooterCharacter::TraceForItems()
 	}
 }
 
-void AShooterCharacter::SpawnDefaultWeapon()
+AWeapon* AShooterCharacter::SpawnDefaultWeapon()
 {
 	// Check the TSubclassOf variable
 	if (DefaultWeaponClass) 
 	{
 		// Swapn the Weapon
-		AWeapon* DefaultWeapon = GetWorld()->SpawnActor<AWeapon>(DefaultWeaponClass);
-		// Get the hand Socket
-		const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName("RightHandSocket"));
-
-		if (HandSocket) 
-		{
-			// Attach the Weapon to the hand socket RightHandSocket
-			HandSocket->AttachActor(DefaultWeapon, GetMesh());
-
-		}
-		// Set EquippedWeapon to the newly spawned Weapon
-		EquippedWeapon = DefaultWeapon;
+		return  GetWorld()->SpawnActor<AWeapon>(DefaultWeaponClass);
+		
 	}
-
+	return nullptr;
 }
 
 void AShooterCharacter::EquipWeapon(AWeapon* WeaponToEquit)
@@ -506,8 +499,21 @@ void AShooterCharacter::EquipWeapon(AWeapon* WeaponToEquit)
 
 	if (WeaponToEquit) 
 	{
+		// Set AreaSphere to  ignore all collision Channels 
+		WeaponToEquit->GetAreaSphere()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		// Set CollisionBox to  ignore all collision Channels 
+		WeaponToEquit->GetCollisionBox()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 
 
+		// Get the hand Socket
+		const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName("RightHandSocket"));
+		if (HandSocket)
+		{
+			// Attach the Weapon to the hand socket RightHandSocket
+			HandSocket->AttachActor(WeaponToEquit, GetMesh());
+		}
+		// Set EquippedWeapon to the newly spawned Weapon
+		EquippedWeapon = WeaponToEquit;
 	}
 
 }

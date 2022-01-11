@@ -83,10 +83,10 @@ protected:
 	void TraceForItems();
 
 	/** Spawns a default weapon and equips it */
-	void SpawnDefaultWeapon();
+	class AWeapon* SpawnDefaultWeapon();
 
 	/** Takes a Weapon and attaches it to the mesh */
-	void EquipWeapon(class AWeapon* WeaponToEquit);
+	void EquipWeapon(AWeapon* WeaponToEquit);
 
 
 public:
