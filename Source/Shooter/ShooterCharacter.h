@@ -85,6 +85,10 @@ protected:
 	/** Spawns a default weapon and equips it */
 	void SpawnDefaultWeapon();
 
+	/** Takes a Weapon and attaches it to the mesh */
+	void EquipWeapon(class AWeapon* WeaponToEquit);
+
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -201,7 +205,7 @@ private:
 
 		/** Currently equipped Weapon */
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
-		class AWeapon* EquippedWeapon;
+		 AWeapon* EquippedWeapon;
 
 		/** Set this in Blueprints for the default Weapon class */
 		UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))

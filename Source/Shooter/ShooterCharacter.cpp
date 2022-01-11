@@ -501,6 +501,19 @@ void AShooterCharacter::SpawnDefaultWeapon()
 
 }
 
+void AShooterCharacter::EquipWeapon(AWeapon* WeaponToEquit)
+{
+
+	if (WeaponToEquit) 
+	{
+
+
+	}
+
+}
+
+
+
 
 // Called every frame
 void AShooterCharacter::Tick(float DeltaTime)
