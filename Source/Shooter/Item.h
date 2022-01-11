@@ -43,6 +43,8 @@ protected:
 	/** Sets the ActiveStars array of bools based on rarity */
 	void SetActiveStars();
 
+
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
