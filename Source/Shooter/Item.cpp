@@ -143,6 +143,7 @@ void AItem::SetItemProperties(EItemState State)
 		CollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		break;
 	case EItemState::EIS_Equipped:
+		PickupWidget->SetVisibility(false);
 		// Set mesh properties
 		ItemMesh->SetSimulatePhysics(false);
 		ItemMesh->SetEnableGravity(false);
@@ -170,7 +171,7 @@ void AItem::SetItemProperties(EItemState State)
 		// Set CollisionBox properties
 		CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		/*break;
+		break;
 	case EItemState::EIS_EquipInterping:
 		PickupWidget->SetVisibility(false);
 		// Set mesh properties
@@ -200,7 +201,7 @@ void AItem::SetItemProperties(EItemState State)
 		// Set CollisionBox properties
 		CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		break;*/
+		break;
 	}
 	
 }

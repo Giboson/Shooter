@@ -453,16 +453,16 @@ void AShooterCharacter::TraceForItems()
 		{
 			// = GetActor UE5 
 			// = Actor UE4
-			AItem* HitItem = Cast<AItem>(ItemTraceResult.GetActor());
-			if (HitItem && HitItem->GetPickupWidget())
+			TraceHitItem = Cast<AItem>(ItemTraceResult.GetActor());
+			if (TraceHitItem && TraceHitItem->GetPickupWidget())
 			{
 				// Show Item's Picup Widget
-				HitItem->GetPickupWidget()->SetVisibility(true);
+				TraceHitItem->GetPickupWidget()->SetVisibility(true);
 			}
 			// We hit an AItem lest frame
 			if (TraceHitItemLastFrame) 
 			{
-				if (HitItem != TraceHitItemLastFrame) 
+				if (TraceHitItem != TraceHitItemLastFrame)
 				{
 					// we are hitting a different AItem this frame form last frame
 					// Or AItem is null.
@@ -470,7 +470,7 @@ void AShooterCharacter::TraceForItems()
 				}
 			}
 			// Show a refernce to HitItem for next frame
-			TraceHitItemLastFrame = HitItem;
+			TraceHitItemLastFrame = TraceHitItem;
 
 		}
 	}
@@ -531,14 +531,31 @@ void AShooterCharacter::DropWeapon()
 
 void AShooterCharacter::SelectButtonPressed()
 {
-	DropWeapon();
+	
+	if (TraceHitItem)
+	{
+		auto TraceHitWeapon = Cast<AWeapon>(TraceHitItem);
 
+		SwapWeapon(TraceHitWeapon);
+
+	}
+	
 }
 
 void AShooterCharacter::SelectButtonReleased()
 {
 
 
+}
+
+void AShooterCharacter::SwapWeapon(AWeapon* WeaponToSwap)
+{
+	
+
+	DropWeapon();
+	EquipWeapon(WeaponToSwap);
+	TraceHitItem = nullptr;
+	TraceHitItemLastFrame = nullptr;
 }
 
 
