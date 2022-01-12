@@ -244,13 +244,13 @@ bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation,F
 void AShooterCharacter::AimingButtonPressed()
 {
 	bAiming = true;
-	// test GetFollowCamera()->SetFieldOfView(CameraZoomedFOV);
+	// test // GetFollowCamera()->SetFieldOfView(CameraZoomedFOV);
 }
 
 void AShooterCharacter::AimingButtonReleased()
 {
 	bAiming = false;
-	// test GetFollowCamera()->SetFieldOfView(CameraDefaultFOV);
+	// test // GetFollowCamera()->SetFieldOfView(CameraDefaultFOV);
 }
 
 void AShooterCharacter::CameraInterpZoom(float DeltaTime)
@@ -499,11 +499,7 @@ void AShooterCharacter::EquipWeapon(AWeapon* WeaponToEquit)
 
 	if (WeaponToEquit) 
 	{
-		// Set AreaSphere to  ignore all collision Channels 
-		WeaponToEquit->GetAreaSphere()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-		// Set CollisionBox to  ignore all collision Channels 
-		WeaponToEquit->GetCollisionBox()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-
+		
 
 		// Get the hand Socket
 		const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName("RightHandSocket"));
@@ -514,7 +510,34 @@ void AShooterCharacter::EquipWeapon(AWeapon* WeaponToEquit)
 		}
 		// Set EquippedWeapon to the newly spawned Weapon
 		EquippedWeapon = WeaponToEquit;
+		EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
+
 	}
+
+}
+
+void AShooterCharacter::DropWeapon()
+{
+	if (EquippedWeapon)
+	{
+		FDetachmentTransformRules DetachmentTransformRules(EDetachmentRule::KeepWorld, true);
+		EquippedWeapon->GetItemMesh()->DetachFromComponent(DetachmentTransformRules);
+		EquippedWeapon->SetItemState(EItemState::EIS_Falling);
+		EquippedWeapon->ThrowWeapon();
+
+	}
+
+}
+
+void AShooterCharacter::SelectButtonPressed()
+{
+	DropWeapon();
+
+}
+
+void AShooterCharacter::SelectButtonReleased()
+{
+
 
 }
 
@@ -561,6 +584,9 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 	PlayerInputComponent->BindAction("AimingButton", IE_Pressed, this, &AShooterCharacter::AimingButtonPressed);
 	PlayerInputComponent->BindAction("AimingButton", IE_Released, this, &AShooterCharacter::AimingButtonReleased);
+
+	PlayerInputComponent->BindAction("Select", IE_Pressed, this, &AShooterCharacter::SelectButtonPressed);
+	PlayerInputComponent->BindAction("Select", IE_Released, this, &AShooterCharacter::SelectButtonReleased);
 }
 
 float AShooterCharacter::GetCrosshairSpreadMultiplier() const
