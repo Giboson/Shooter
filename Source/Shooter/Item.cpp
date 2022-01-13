@@ -220,12 +220,21 @@ void AItem::SetItemProperties(EItemState State)
 void AItem::FinishInterping()
 {
 	bInterping = false;
-	if (Character) 
+	if (Character)
 	{
-		Character->GetPickupItem(this);
+		// Subtract 1 from the Item Count of the interp location struct
+		//Character->IncrementInterpLocItemCount(InterpLocIndex, -1);
+		//Character->GetPickupItem(this);
 
-
+		//Character->UnHighlightInventorySlot();
 	}
+	// Set scale back to normal
+	SetActorScale3D(FVector(1.f));
+
+	//DisableGlowMaterial();
+	//bCanChangeCustomDepth = true;
+	//DisableCustomDepth();
+
 }
 
 void AItem::ItemInterp(float DeltaTime)
