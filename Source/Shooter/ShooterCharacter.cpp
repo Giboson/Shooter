@@ -640,3 +640,16 @@ FVector AShooterCharacter::GetCameraInterpLocation()
 		+ FVector(0.f, 0.f, CameraInterpElevation);
 }
 
+// No longer needed; AItem has GetInterpLocation
+	//FVector GetCameraInterpLocation();
+
+void AShooterCharacter::GetPickupItem(AItem* Item)
+{
+	auto Weapon = Cast<AWeapon>(Item);
+	
+	if (Weapon) 
+	{
+		SwapWeapon(Weapon);
+	}
+
+}
