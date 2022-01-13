@@ -45,8 +45,7 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 			LastMovementOffsetYaw = MovementOffsetYaw;
 
 		}
-		// 
-		bAiming = ShooterCharacter->GetAinming();
+		// bAiming = ShooterCharacter->GetAinming();
 	}
 }
 

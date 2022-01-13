@@ -97,6 +97,10 @@ protected:
 	/** Drops currently equipped Weapon and Equips TraceHitItem */
 	void SwapWeapon(AWeapon* WeaponToSwap);
 
+	
+
+
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -223,6 +227,15 @@ private:
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 		AItem* TraceHitItem;
 
+		/** Distance outward from the camera for the interp destination */
+		UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
+		float CameraInterpDistance;
+
+		/** Distance upward from the camera for the interp destination */
+		UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
+		float CameraInterpElevation;
+
+
 public:
 	/** Returns CameraBoom subobject */
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -230,8 +243,7 @@ public:
 	/** Returns FollowCamera subobject */
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-	/** */
-	FORCEINLINE bool GetAinming() const { return bAiming; }
+	FORCEINLINE bool GetAiming() const { return bAiming; }
 
 	/** Determines the spread of the crosshairs */
 	UFUNCTION(BlueprintCallable)
@@ -242,6 +254,6 @@ public:
 	void IncrementOverlappedItemCount(int8 Amount);
 
 	// No longer needed; AItem has GetInterpLocation
-	//FVector GetCameraInterpLocation();
+	FVector GetCameraInterpLocation();
 
 };

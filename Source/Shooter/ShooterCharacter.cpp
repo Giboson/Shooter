@@ -20,9 +20,8 @@
 
 // Sets default values
 AShooterCharacter::AShooterCharacter() :
-
+	CameraBoom(CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"))),
 	// Base rates for truning/looking up
-
 	BaseTurnRate(45.f),
 	BaseLookUpRate(45.f),
 
@@ -58,7 +57,10 @@ AShooterCharacter::AShooterCharacter() :
 	bFireButtonPressed(false),
 	// Item trace varebles
 	bShouldTraceForItems(false),
-
+	// Camera interp location variables
+	CameraInterpDistance(250.f),
+	CameraInterpElevation(65.f),
+	OverlappedItemCount(0),
 	bFiringBullet(false)
 
 
@@ -67,7 +69,7 @@ AShooterCharacter::AShooterCharacter() :
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Create a camera boom (pulls in towards the character if there is a collision)
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	//CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 180.f; // The camera follows at this distance behind the character
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
@@ -627,5 +629,14 @@ void AShooterCharacter::IncrementOverlappedItemCount(int8 Amount) //FGuid ID)
 
 		
 	}
+}
+
+FVector AShooterCharacter::GetCameraInterpLocation()
+{
+	const FVector CameraWorldLocation{ FollowCamera->GetComponentLocation() };
+	const FVector CameraForward{ FollowCamera->GetForwardVector() };
+	// Desired = CameraWorldLocation + Forward * A + Up * B
+	return CameraWorldLocation + CameraForward * CameraInterpDistance
+		+ FVector(0.f, 0.f, CameraInterpElevation);
 }
 
