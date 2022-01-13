@@ -131,6 +131,21 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	float ZCurveTime;
 
+	/** Pointer to the Character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	class AShooterCharacter* Character;
+
+	/** X and Y for the Item while interping in the EquipInterping state */
+	float ItemInterpX;
+	float ItemInterpY;
+
+	/** Initial Yaw offset between the camera and the interping item */
+	float InterpInitialYawOffset;
+
+	/** Curve used to scale the item when interping */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	UCurveFloat* ItemScaleCurve;
+
 	/** Curve to drive the dynamic material parameters */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	class UCurveVector* PulseCurve;
@@ -138,10 +153,6 @@ private:
 	/** Curve to drive the dynamic material parameters */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	UCurveVector* InterpPulseCurve;
-
-	/** Pointer to the Character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	class AShooterCharacter* Character;
 
 
 public:
