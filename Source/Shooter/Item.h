@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Engine/DataTable.h"
 #include "Item.generated.h"
 
 UENUM(BlueprintType)
@@ -58,6 +59,12 @@ protected:
 	/** Sets propertis of the Item's components based on State */
 	void SetItemProperties(EItemState State);
 
+	/** Called when ItemInterpTimer is finished */
+	void FinishInterping();
+
+	/** Handles item interpolation when in the EquipInterping state */
+	void ItemInterp(float DeltaTime);
+
 
 
 public:	
@@ -102,9 +109,40 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	EItemState ItemState;
 
-	/**  The curve asset to use for the item's Z Location  when inturping */
+	/** The curve asset to use for the item's Z location when interping */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	class UCurveVector* ItemZCurce; 
+	class UCurveFloat* ItemZCurve;
+
+	/** Starting location when interping begins */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	FVector ItemInterpStartLocation;
+
+	/** Target interp location in front of the camera */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	FVector CameraTargetLocation;
+
+	/** true when interping */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	bool bInterping;
+
+	/** Plays when we start interping */
+	FTimerHandle ItemInterpTimer;
+	/** Duration of the curve and timer */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	float ZCurveTime;
+
+	/** Curve to drive the dynamic material parameters */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	class UCurveVector* PulseCurve;
+
+	/** Curve to drive the dynamic material parameters */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	UCurveVector* InterpPulseCurve;
+
+	/** Pointer to the Character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	class AShooterCharacter* Character;
+
 
 public:
 	FORCEINLINE UWidgetComponent* GetPickupWidget() const { return PickupWidget; }
@@ -113,6 +151,9 @@ public:
 	FORCEINLINE EItemState GetItemState() const { return ItemState; }
 	void SetItemState(EItemState State);
 	FORCEINLINE USkeletalMeshComponent* GetItemMesh() const { return ItemMesh; }
+	
+	/** Called form the AShooterCharacter class */
+	void StartItemCurve(AShooterCharacter* Char);
 
 
 };
