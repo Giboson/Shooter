@@ -224,7 +224,7 @@ void AItem::FinishInterping()
 	{
 		// Subtract 1 from the Item Count of the interp location struct
 		//Character->IncrementInterpLocItemCount(InterpLocIndex, -1);
-		//Character->GetPickupItem(this);
+		Character->GetPickupItem(this);
 
 		//Character->UnHighlightInventorySlot();
 	}
@@ -251,6 +251,7 @@ void AItem::ItemInterp(float DeltaTime)
 		// Get the item's initial location when the curve started
 		FVector ItemLocation = ItemInterpStartLocation;
 		// Get location in front of the camera
+		//const FVector CameraInterpLocation{ GetInterpLocation() };
 		const FVector CameraInterpLocation{ Character->GetCameraInterpLocation() };
 		// Vector from Item to Camera Interp Location, X and Y are zeroed out
 		const FVector ItemToCamera{ FVector(0.f, 0.f, (CameraInterpLocation - ItemLocation).Z) };
