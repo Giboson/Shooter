@@ -5,6 +5,24 @@
 #include "GameFramework/Character.h"
 #include "ShooterCharacter.generated.h"
 
+
+UENUM(BlueprintType)
+enum class EAmmoType : uint8
+{
+
+	EAT_9mm  UMETA(DisplayName ="9mm"),
+	EAT_AR  UMETA(DisplayName = "Assault Rifle"),
+
+	//ECS_Unoccupied UMETA(DisplayName = "Unoccupied"),
+	//ECS_FireTimerInProgress UMETA(DisplayName = "FireTimerInProgress"),
+	//ECS_Reloading UMETA(DisplayName = "Reloading"),
+	//ECS_Equipping UMETA(DisplayName = "Equipping"),
+	//ECS_Stunned UMETA(DisplayName = "Stunned"),
+
+	ECS_NAX UMETA(DisplayName = "DefaultMAX")
+};
+
+
 UCLASS()
 class SHOOTER_API AShooterCharacter : public ACharacter
 {
@@ -96,6 +114,8 @@ protected:
 	/** Drops currently equipped Weapon and Equips TraceHitItem */
 	void SwapWeapon(AWeapon* WeaponToSwap);
 
+	/** Initialize the Ammo Map with ammo values */
+	void InitializeAmmoMap();
 	
 
 
@@ -234,7 +254,17 @@ private:
 		UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
 		float CameraInterpElevation;
 
+		/** map to keep track of ammo of the different ammo types */
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
+		TMap<EAmmoType, int32> AmmoMap;
 
+		/** Starting amout of 9mm ammo */
+		UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
+		int32 Starting9mmAmmo;
+
+		/** Starting amout of AR ammo */
+		UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
+		int32 StartingARAmmo;
 public:
 	/** Returns CameraBoom subobject */
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

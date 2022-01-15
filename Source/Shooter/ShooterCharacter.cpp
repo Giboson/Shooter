@@ -57,10 +57,14 @@ AShooterCharacter::AShooterCharacter() :
 	bFireButtonPressed(false),
 	// Item trace varebles
 	bShouldTraceForItems(false),
+	OverlappedItemCount(0),
 	// Camera interp location variables
 	CameraInterpDistance(250.f),
 	CameraInterpElevation(65.f),
-	OverlappedItemCount(0),
+	// Starting ammo amounts
+	Starting9mmAmmo(85),
+	StartingARAmmo(120),
+
 	bFiringBullet(false)
 
 
@@ -560,6 +564,13 @@ void AShooterCharacter::SwapWeapon(AWeapon* WeaponToSwap)
 	EquipWeapon(WeaponToSwap);
 	TraceHitItem = nullptr;
 	TraceHitItemLastFrame = nullptr;
+}
+
+void AShooterCharacter::InitializeAmmoMap()
+{
+	AmmoMap.Add(EAmmoType::EAT_9mm, Starting9mmAmmo);
+	AmmoMap.Add(EAmmoType::EAT_AR, StartingARAmmo);
+
 }
 
 
