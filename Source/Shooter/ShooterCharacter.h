@@ -117,7 +117,8 @@ protected:
 	/** Initialize the Ammo Map with ammo values */
 	void InitializeAmmoMap();
 	
-
+	/** Check to make sure our weapon has ammo */
+	bool WeaponHasAmmo();
 
 
 public:

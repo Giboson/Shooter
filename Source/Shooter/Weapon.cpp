@@ -6,8 +6,8 @@
 
 AWeapon::AWeapon():
 	ThrowWeaponTime(0.7f),
-	bFalling(false)
-	//Ammo(30),
+	bFalling(false),
+	Ammo(0)
 	//MagazineCapacity(30),
 	//WeaponType(EWeaponType::EWT_SubmachineGun),
 	//AmmoType(EAmmoType::EAT_9mm),
@@ -59,9 +59,23 @@ void AWeapon::ThrowWeapon()
 
 }
 
+
 void AWeapon::StopFalling()
 {
 	bFalling = false;
 	SetItemState(EItemState::EIS_Pickup);
 	//StartPulseTimer();
+}
+
+
+void  AWeapon::DecrementAmmo() 
+{
+	if (Ammo - 1 <= 0) 
+	{
+		Ammo = 0;
+	}
+	else
+	{
+		--Ammo;
+	}
 }

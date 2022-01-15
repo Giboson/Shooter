@@ -178,14 +178,16 @@ void AShooterCharacter::LookUp(float Value)
 
 void AShooterCharacter::FireWeapon()
 {
+	if (EquippedWeapon == nullptr) return;
+	
 	if (FireSound)
 	{
 		UGameplayStatics::PlaySound2D(this, FireSound);
 	}
-	const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName("BarrelSocket");
+	const USkeletalMeshSocket* BarrelSocket = EquippedWeapon->GetItemMesh()->GetSocketByName("BarrelSocket");
 	if (BarrelSocket)
 	{
-		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
+		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(EquippedWeapon->GetItemMesh());
 
 		if (MuzzleFlash)
 		{
@@ -215,8 +217,13 @@ void AShooterCharacter::FireWeapon()
 		AnimInstance->Montage_Play(HipFireMontage);
 		AnimInstance->Montage_JumpToSection(FName("StartFire"));
 	}
+	if (EquippedWeapon) 
+	{
+		// Subtrect 1 for the Weapon's Ammo
+		EquippedWeapon->DecrementAmmo();
+	}
 	// Start bullet fire timer for crosshairs
-	StartCrosshairBulletFire();
+	//StartCrosshairBulletFire();
 }
 
 bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation,FVector& OutBeamLocation)
@@ -386,7 +393,12 @@ void AShooterCharacter::FinishCrosshairBulletFire()
 void AShooterCharacter::FireButtonPressed()
 {
 	bFireButtonPressed = true;
-	StratFireTime();
+	if (WeaponHasAmmo())
+	{
+		
+		StratFireTime();
+
+	}
 }
 
 void AShooterCharacter::FireButtonReleased()
@@ -400,16 +412,23 @@ void AShooterCharacter::StratFireTime()
 	{
 		FireWeapon();
 		bShouldFire = false;
-		GetWorldTimerManager().SetTimer(AutoFireTimer, this, &AShooterCharacter::AutoFireReset, AutomaticFireRate);
+		GetWorldTimerManager().SetTimer(
+			AutoFireTimer, 
+			this, 
+			&AShooterCharacter::AutoFireReset, 
+			AutomaticFireRate);
 	}
 }
 
 void AShooterCharacter::AutoFireReset()
 {
-	bShouldFire = true;
-	if (bFireButtonPressed)
+	if (WeaponHasAmmo())
 	{
-		StratFireTime();
+		bShouldFire = true;
+		if (bFireButtonPressed)
+		{
+			StratFireTime();
+		}
 	}
 }
 
@@ -571,6 +590,14 @@ void AShooterCharacter::InitializeAmmoMap()
 	AmmoMap.Add(EAmmoType::EAT_9mm, Starting9mmAmmo);
 	AmmoMap.Add(EAmmoType::EAT_AR, StartingARAmmo);
 
+}
+
+bool AShooterCharacter::WeaponHasAmmo()
+{
+	if (EquippedWeapon == nullptr) return false;
+	{
+		return EquippedWeapon->GetAmmo() > 0;
+	}
 }
 
 
