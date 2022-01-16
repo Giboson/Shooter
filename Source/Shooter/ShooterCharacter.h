@@ -130,6 +130,11 @@ protected:
 	/** Handle reloading of the weapon */
 	void ReloadWeapon();
 
+	/** Checks to see if we have ammo of the EquippedWeapon's ammo type */
+	bool CarryingAmmo();
+
+
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

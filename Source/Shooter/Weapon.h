@@ -50,13 +50,21 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
 	int32 Ammo;
 
+	/** Maximum ammo that our weapon can hold */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	int32 MagazineCapacity;
+
 	/** The type of weapon */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
 	EWeaponType WeaponType;
 
+	/** The type of ammo for this weapon */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	EAmmoType AmmoType;
 
-
-
+	/** FName for the Reload Montage Section */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	FName ReloadMontageSection;
 
 
 
@@ -66,9 +74,23 @@ public:
 
 
 	FORCEINLINE int32 GetAmmo() const { return Ammo; }
+	FORCEINLINE int32 GetMagazineCapacity() const { return MagazineCapacity; }
 
 	/** Called form Character class when firing weapon*/
 	void DecrementAmmo();
 	
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
+	FORCEINLINE EAmmoType GetAmmoType() const { return AmmoType; }
+	FORCEINLINE FName GetReloadMontageSection() const { return ReloadMontageSection; }
+	//FORCEINLINE void SetReloadMontageSection(FName Name) { ReloadMontageSection = Name; }
+	//FORCEINLINE FName GetClipBoneName() const { return ClipBoneName; }
+	//FORCEINLINE void SetClipBoneName(FName Name) { ClipBoneName = Name; }
+	//FORCEINLINE float GetAutoFireRate() const { return AutoFireRate; }
+	//FORCEINLINE UParticleSystem* GetMuzzleFlash() const { return MuzzleFlash; }
+	//FORCEINLINE USoundCue* GetFireSound() const { return FireSound; }
+	//FORCEINLINE bool GetAutomatic() const { return bAutomatic; }
+	//FORCEINLINE float GetDamage() const { return Damage; }
+	//FORCEINLINE float GetHeadShotDamage() const { return HeadShotDamage; }
+	
+	void ReloadAmmo(int32 Amount);
 };
