@@ -60,6 +60,8 @@ void AWeapon::ThrowWeapon()
 }
 
 
+
+
 void AWeapon::StopFalling()
 {
 	bFalling = false;
@@ -79,6 +81,7 @@ void  AWeapon::DecrementAmmo()
 		--Ammo;
 	}
 }
+
 
 void AWeapon::ReloadAmmo(int32 Amount)
 {

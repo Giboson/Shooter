@@ -37,8 +37,7 @@ protected:
 	
 
 	void StopFalling();
-
-
+	
 
 private:
 	FTimerHandle ThrowWeaponTimer;
@@ -71,6 +70,7 @@ private:
 public:
 	/** Adds an impulse to the Weapon */
 	void ThrowWeapon();
+
 
 
 	FORCEINLINE int32 GetAmmo() const { return Ammo; }
