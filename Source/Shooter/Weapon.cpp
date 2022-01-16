@@ -7,9 +7,9 @@
 AWeapon::AWeapon():
 	ThrowWeaponTime(0.7f),
 	bFalling(false),
-	Ammo(0)
+	Ammo(0),
 	//MagazineCapacity(30),
-	//WeaponType(EWeaponType::EWT_SubmachineGun),
+	WeaponType(EWeaponType::EWT_SubmachineGun)
 	//AmmoType(EAmmoType::EAT_9mm),
 	//ReloadMontageSection(FName(TEXT("Reload SMG"))),
 	//ClipBoneName(TEXT("smg_clip")),
