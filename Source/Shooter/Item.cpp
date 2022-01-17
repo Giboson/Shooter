@@ -8,7 +8,7 @@
 #include "ShooterCharacter.h"
 #include "Camera/CameraComponent.h"
 
-
+// The Item Class .. Checking for errors
 
 // Sets default values
 AItem::AItem():
@@ -29,11 +29,16 @@ AItem::AItem():
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// no errors >>
 	ItemMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ItemMesh"));
 	SetRootComponent(ItemMesh);
 
+
+	// no errors >>
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	CollisionBox->SetupAttachment(ItemMesh);
+
+
 	// Set CollisionBox properties
 	CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility,ECollisionResponse::ECR_Block);
@@ -148,9 +153,7 @@ void AItem::SetItemProperties(EItemState State)
 		AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		// Set CollisionBox properties
 		CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-		CollisionBox->SetCollisionResponseToChannel(
-			ECollisionChannel::ECC_Visibility,
-			ECollisionResponse::ECR_Block);
+		CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 		CollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		break;
 	case EItemState::EIS_Equipped:

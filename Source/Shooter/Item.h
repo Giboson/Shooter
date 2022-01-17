@@ -74,17 +74,27 @@ public:
 
 
 private:
+	// The Item Class .. Checking for errors 
+	
+	
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	//USkeletalMeshComponent* ItemMesh;
+
+
 	/** Skeletal Mesh for the item */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* ItemMesh;
 
+	// no errors >>   
 	/** Line trace collides with box to show HUD widgets */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	class UBoxComponent* CollisionBox;
+	 UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta =(AllowPrivateAccess = "true"))
+	 class UBoxComponent* CollisionBox;  
 	
+
 	/** Popup widget for when the player looks at the item */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent* PickupWidget;
+	 
 
 	/** Enables item tracing when overlapped */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
@@ -147,13 +157,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	UCurveFloat* ItemScaleCurve;
 
-	/** Curve to drive the dynamic material parameters */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	class UCurveVector* PulseCurve;
 
-	/** Curve to drive the dynamic material parameters */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	UCurveVector* InterpPulseCurve;
 
 
 public:
