@@ -1,21 +1,19 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+
 #include "Weapon.h"
 
-
-
-AWeapon::AWeapon():
+AWeapon::AWeapon() :
 	ThrowWeaponTime(0.7f),
 	bFalling(false),
-	Ammo(30),
-	MagazineCapacity(30),
+	Ammo(0),
 	WeaponType(EWeaponType::EWT_SubmachineGun),
 	AmmoType(EAmmoType::EAT_9mm),
 	ReloadMontageSection(FName(TEXT("Reload SMG")))
-	
 {
-	//PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = true;
 }
+
 void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -26,8 +24,6 @@ void AWeapon::Tick(float DeltaTime)
 		const FRotator MeshRotation{ 0.f, GetItemMesh()->GetComponentRotation().Yaw, 0.f };
 		GetItemMesh()->SetWorldRotation(MeshRotation, false, nullptr, ETeleportType::TeleportPhysics);
 	}
-	
-
 }
 
 void AWeapon::ThrowWeapon()
@@ -46,26 +42,23 @@ void AWeapon::ThrowWeapon()
 	GetItemMesh()->AddImpulse(ImpulseDirection);
 
 	bFalling = true;
-	GetWorldTimerManager().SetTimer(ThrowWeaponTimer, this, &AWeapon::StopFalling, ThrowWeaponTime);
-
-	
+	GetWorldTimerManager().SetTimer(
+		ThrowWeaponTimer, 
+		this, 
+		&AWeapon::StopFalling, 
+		ThrowWeaponTime);
 
 }
-
-
-
 
 void AWeapon::StopFalling()
 {
 	bFalling = false;
 	SetItemState(EItemState::EIS_Pickup);
-	
 }
 
-
-void  AWeapon::DecrementAmmo() 
+void AWeapon::DecrementAmmo()
 {
-	if (Ammo - 1 <= 0) 
+	if (Ammo - 1 <= 0)
 	{
 		Ammo = 0;
 	}
@@ -73,11 +66,4 @@ void  AWeapon::DecrementAmmo()
 	{
 		--Ammo;
 	}
-}
-
-
-void AWeapon::ReloadAmmo(int32 Amount)
-{
-	checkf(Ammo + Amount <= MagazineCapacity, TEXT("Attempted to reload with more than magazine capacity!"));
-	Ammo += Amount;
 }

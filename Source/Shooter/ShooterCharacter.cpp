@@ -15,33 +15,27 @@
 #include "Weapon.h"
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
-#include "Components/CapsuleComponent.h"
-
-
-//#include "Ammo.h"
-//#include "Engine/EngineTypes.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter() :
 	CameraBoom(CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"))),
-	// Base rates for truning/looking up
+	// Base rates for turning/looking up
 	BaseTurnRate(45.f),
 	BaseLookUpRate(45.f),
-
-	// Trun rates for  aiming/not aiming
+	// Turn rates for aiming/not aiming
 	HipTurnRate(90.f),
 	HipLookUpRate(90.f),
-	AimingTrunRate(20.f),
+	AimingTurnRate(20.f),
 	AimingLookUpRate(20.f),
-	// mouse look sensitivity scale factors
+	// Mouse look sensitivity scale factors 
 	MouseHipTurnRate(1.0f),
 	MouseHipLookUpRate(1.0f),
 	MouseAimingTurnRate(0.2f),
 	MouseAimingLookUpRate(0.2f),
 	// true when aiming the weapon
 	bAiming(false),
-	// comera field of view values
-	CameraDefaultFOV(0.f),	// set in BigenPlay
+	// Camera field of view values
+	CameraDefaultFOV(0.f), // set in BeginPlay
 	CameraZoomedFOV(35.f),
 	CameraCurrentFOV(0.f),
 	ZoomInterpSpeed(20.f),
@@ -51,14 +45,14 @@ AShooterCharacter::AShooterCharacter() :
 	CrosshairInAirFactor(0.f),
 	CrosshairAimFactor(0.f),
 	CrosshairShootingFactor(0.f),
-	// Automatic gun fire rate
-	AutomaticFireRate(0.1f),
 	// Bullet fire timer variables
 	ShootTimeDuration(0.05f),
-	// Automatic fire variables 
+	bFiringBullet(false),
+	// Automatic fire variables
+	AutomaticFireRate(0.1f),
 	bShouldFire(true),
 	bFireButtonPressed(false),
-	// Item trace varebles
+	// Item trace variables
 	bShouldTraceForItems(false),
 	OverlappedItemCount(0),
 	// Camera interp location variables
@@ -68,10 +62,7 @@ AShooterCharacter::AShooterCharacter() :
 	Starting9mmAmmo(85),
 	StartingARAmmo(120),
 	// Combat variables
-	CombatState(ECombatState::ECS_Unoccupied),
-	bFiringBullet(false)
-
-
+	CombatState(ECombatState::ECS_Unoccupied)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -110,9 +101,10 @@ void AShooterCharacter::BeginPlay()
 		CameraDefaultFOV = GetFollowCamera()->FieldOfView;
 		CameraCurrentFOV = CameraDefaultFOV;
 	}
-	// Spawn the default weapon and  equip it
+	// Spawn the default weapon and equip it
 	EquipWeapon(SpawnDefaultWeapon());
 
+	InitializeAmmoMap();
 }
 
 void AShooterCharacter::MoveForward(float Value)
@@ -192,92 +184,91 @@ void AShooterCharacter::FireWeapon()
 		PlayGunfireMontage();
 		EquippedWeapon->DecrementAmmo();
 
-		StratFireTimer();
-		
+		StartFireTimer();
 	}
 }
 
-
-bool AShooterCharacter::GetBeamEndLocation(const
-	FVector& MuzzleSocketLocation,
+bool AShooterCharacter::GetBeamEndLocation(
+	const FVector& MuzzleSocketLocation,
 	FVector& OutBeamLocation)
 {
-	// Check for Crosshair trace hit
+	// Check for crosshair trace hit
 	FHitResult CrosshairHitResult;
 	bool bCrosshairHit = TraceUnderCrosshairs(CrosshairHitResult, OutBeamLocation);
-	if (bCrosshairHit) 
+
+	if (bCrosshairHit)
 	{
-		// Tentative beam location - strace  form gun
+		// Tentative beam location - still need to trace from gun
 		OutBeamLocation = CrosshairHitResult.Location;
 	}
-	else // no crossehair trace hit
+	else // no crosshair trace hit
 	{
-		// OutBeamLocation is the end location for the line trace
-
+		// OutBeamLocation is the End location for the line trace
 	}
-		// Perform a second trace, this time from the gun barrel
+
+	// Perform a second trace, this time from the gun barrel
 	FHitResult WeaponTraceHit;
 	const FVector WeaponTraceStart{ MuzzleSocketLocation };
-	const FVector StartToEnd{ OutBeamLocation - MuzzleSocketLocation };
+	const FVector StartToEnd{ OutBeamLocation - WeaponTraceStart };
 	const FVector WeaponTraceEnd{ MuzzleSocketLocation + StartToEnd * 1.25f };
-	GetWorld()->LineTraceSingleByChannel( WeaponTraceHit, WeaponTraceStart, WeaponTraceEnd, ECollisionChannel::ECC_Visibility);
+	GetWorld()->LineTraceSingleByChannel(
+		WeaponTraceHit,
+		WeaponTraceStart,
+		WeaponTraceEnd,
+		ECollisionChannel::ECC_Visibility);
 	if (WeaponTraceHit.bBlockingHit) // object between barrel and BeamEndPoint?
 	{
 		OutBeamLocation = WeaponTraceHit.Location;
 		return true;
 	}
+
 	return false;
 }
+
 void AShooterCharacter::AimingButtonPressed()
 {
 	bAiming = true;
-	// test // GetFollowCamera()->SetFieldOfView(CameraZoomedFOV);
 }
 
 void AShooterCharacter::AimingButtonReleased()
 {
 	bAiming = false;
-	// test // GetFollowCamera()->SetFieldOfView(CameraDefaultFOV);
 }
 
 void AShooterCharacter::CameraInterpZoom(float DeltaTime)
 {
+	// Set current camera field of view
+	if (bAiming)
 	{
-	
-
-		// Set current camera field of  view
-		if (bAiming)
-		{
-			// interpolate to zoomeed FOV
-			CameraCurrentFOV = FMath::FInterpTo(CameraCurrentFOV, CameraZoomedFOV, DeltaTime, ZoomInterpSpeed);
-
-		}
-		else
-		{
-			// interpolate to Default FOV
-			CameraCurrentFOV = FMath::FInterpTo(CameraCurrentFOV, CameraDefaultFOV, DeltaTime, ZoomInterpSpeed);
-
-
-		}
-		GetFollowCamera()->SetFieldOfView(CameraCurrentFOV);
+		// Interpolate to zoomed FOV
+		CameraCurrentFOV = FMath::FInterpTo(
+			CameraCurrentFOV,
+			CameraZoomedFOV,
+			DeltaTime,
+			ZoomInterpSpeed);
 	}
+	else
+	{
+		// Interpolate to default FOV
+		CameraCurrentFOV = FMath::FInterpTo(
+			CameraCurrentFOV,
+			CameraDefaultFOV,
+			DeltaTime,
+			ZoomInterpSpeed);
+	}
+	GetFollowCamera()->SetFieldOfView(CameraCurrentFOV);
 }
 
 void AShooterCharacter::SetLookRates()
 {
 	if (bAiming)
 	{
-		/** Trun raite */
-		BaseTurnRate = AimingTrunRate;
-		/** look up rate */
+		BaseTurnRate = AimingTurnRate;
 		BaseLookUpRate = AimingLookUpRate;
-
 	}
 	else
 	{
-		/** Trun raite */
 		BaseTurnRate = HipTurnRate;
-		/** look up rate */
 		BaseLookUpRate = HipLookUpRate;
 	}
 }
@@ -290,8 +281,11 @@ void AShooterCharacter::CalculateCrosshairSpread(float DeltaTime)
 	Velocity.Z = 0.f;
 
 	// Calculate crosshair velocity factor
-	CrosshairVelocityFactor = FMath::GetMappedRangeValueClamped(WalkSpeedRange, VelocityMultiplierRange, Velocity.Size());
-	
+	CrosshairVelocityFactor = FMath::GetMappedRangeValueClamped(
+		WalkSpeedRange,
+		VelocityMultiplierRange,
+		Velocity.Size());
+
 	// Calculate crosshair in air factor
 	if (GetCharacterMovement()->IsFalling()) // is in air?
 	{
@@ -331,7 +325,7 @@ void AShooterCharacter::CalculateCrosshairSpread(float DeltaTime)
 			DeltaTime,
 			30.f);
 	}
-	
+
 	// True 0.05 second after firing
 	if (bFiringBullet)
 	{
@@ -350,13 +344,23 @@ void AShooterCharacter::CalculateCrosshairSpread(float DeltaTime)
 			60.f);
 	}
 
-	CrosshairSpreadMultiplier = 0.5f + CrosshairVelocityFactor + CrosshairInAirFactor - CrosshairAimFactor + CrosshairShootingFactor;
+	CrosshairSpreadMultiplier = 
+		0.5f + 
+		CrosshairVelocityFactor + 
+		CrosshairInAirFactor -
+		CrosshairAimFactor +
+		CrosshairShootingFactor;
 }
 
 void AShooterCharacter::StartCrosshairBulletFire()
 {
 	bFiringBullet = true;
-	GetWorldTimerManager().SetTimer(CrosshairShootTimer, this, &AShooterCharacter::FinishCrosshairBulletFire, ShootTimeDuration);
+
+	GetWorldTimerManager().SetTimer(
+		CrosshairShootTimer, 
+		this, 
+		&AShooterCharacter::FinishCrosshairBulletFire, 
+		ShootTimeDuration);
 }
 
 void AShooterCharacter::FinishCrosshairBulletFire()
@@ -368,7 +372,6 @@ void AShooterCharacter::FireButtonPressed()
 {
 	bFireButtonPressed = true;
 	FireWeapon();
-
 }
 
 void AShooterCharacter::FireButtonReleased()
@@ -376,24 +379,24 @@ void AShooterCharacter::FireButtonReleased()
 	bFireButtonPressed = false;
 }
 
-void AShooterCharacter::StratFireTimer()
+void AShooterCharacter::StartFireTimer()
 {
 	CombatState = ECombatState::ECS_FireTimerInProgress;
 
-		GetWorldTimerManager().SetTimer(
-			AutoFireTimer, 
-			this, 
-			&AShooterCharacter::AutoFireReset, 
-			AutomaticFireRate);
-
+	GetWorldTimerManager().SetTimer(
+		AutoFireTimer,
+		this,
+		&AShooterCharacter::AutoFireReset,
+		AutomaticFireRate);
 }
 
 void AShooterCharacter::AutoFireReset()
 {
 	CombatState = ECombatState::ECS_Unoccupied;
-	if (WeaponHasAmmo()) 
+
+	if (WeaponHasAmmo())
 	{
-		if (bFireButtonPressed) 
+		if (bFireButtonPressed)
 		{
 			FireWeapon();
 		}
@@ -405,7 +408,9 @@ void AShooterCharacter::AutoFireReset()
 	}
 }
 
-bool AShooterCharacter::TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation)
+bool AShooterCharacter::TraceUnderCrosshairs(
+	FHitResult& OutHitResult,
+	FVector& OutHitLocation)
 {
 	// Get Viewport Size
 	FVector2D ViewportSize;
@@ -413,30 +418,36 @@ bool AShooterCharacter::TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& 
 	{
 		GEngine->GameViewport->GetViewportSize(ViewportSize);
 	}
+
 	// Get screen space location of crosshairs
 	FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
 	FVector CrosshairWorldPosition;
 	FVector CrosshairWorldDirection;
+
 	// Get world position and direction of crosshairs
 	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(
 		UGameplayStatics::GetPlayerController(this, 0),
 		CrosshairLocation,
 		CrosshairWorldPosition,
 		CrosshairWorldDirection);
+
 	if (bScreenToWorld)
 	{
 		// Trace from Crosshair world location outward
 		const FVector Start{ CrosshairWorldPosition };
 		const FVector End{ Start + CrosshairWorldDirection * 50'000.f };
 		OutHitLocation = End;
-		GetWorld()->LineTraceSingleByChannel(OutHitResult, Start, End, ECollisionChannel::ECC_Visibility);
+		GetWorld()->LineTraceSingleByChannel(
+			OutHitResult,
+			Start,
+			End,
+			ECollisionChannel::ECC_Visibility);
 		if (OutHitResult.bBlockingHit)
 		{
 			OutHitLocation = OutHitResult.Location;
 			return true;
 		}
 	}
-
 	return false;
 }
 
@@ -449,30 +460,28 @@ void AShooterCharacter::TraceForItems()
 		TraceUnderCrosshairs(ItemTraceResult, HitLocation);
 		if (ItemTraceResult.bBlockingHit)
 		{
-			// = GetActor UE5 
-			// = Actor UE4
 			TraceHitItem = Cast<AItem>(ItemTraceResult.GetActor());
 			if (TraceHitItem && TraceHitItem->GetPickupWidget())
 			{
-				// Show Item's Picup Widget
+				// Show Item's Pickup Widget
 				TraceHitItem->GetPickupWidget()->SetVisibility(true);
 			}
-			// We hit an AItem lest frame
-			if (TraceHitItemLastFrame) 
+
+			// We hit an AItem last frame
+			if (TraceHitItemLastFrame)
 			{
 				if (TraceHitItem != TraceHitItemLastFrame)
 				{
-					// we are hitting a different AItem this frame form last frame
+					// We are hitting a different AItem this frame from last frame
 					// Or AItem is null.
 					TraceHitItemLastFrame->GetPickupWidget()->SetVisibility(false);
 				}
 			}
-			// Show a refernce to HitItem for next frame
+			// Store a reference to HitItem for next frame
 			TraceHitItemLastFrame = TraceHitItem;
-
 		}
 	}
-	else if (TraceHitItemLastFrame) 
+	else if (TraceHitItemLastFrame)
 	{
 		// No longer overlapping any items,
 		// Item last frame should not show widget
@@ -483,35 +492,31 @@ void AShooterCharacter::TraceForItems()
 AWeapon* AShooterCharacter::SpawnDefaultWeapon()
 {
 	// Check the TSubclassOf variable
-	if (DefaultWeaponClass) 
+	if (DefaultWeaponClass)
 	{
-		// Swapn the Weapon
-		return  GetWorld()->SpawnActor<AWeapon>(DefaultWeaponClass);
-		
+		// Spawn the Weapon
+		return GetWorld()->SpawnActor<AWeapon>(DefaultWeaponClass);
 	}
+
 	return nullptr;
 }
 
-void AShooterCharacter::EquipWeapon(AWeapon* WeaponToEquit)
+void AShooterCharacter::EquipWeapon(AWeapon* WeaponToEquip)
 {
-
-	if (WeaponToEquit) 
+	if (WeaponToEquip)
 	{
-		
-
-		// Get the hand Socket
-		const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName("RightHandSocket"));
+		// Get the Hand Socket
+		const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(
+			FName("RightHandSocket"));
 		if (HandSocket)
 		{
 			// Attach the Weapon to the hand socket RightHandSocket
-			HandSocket->AttachActor(WeaponToEquit, GetMesh());
+			HandSocket->AttachActor(WeaponToEquip, GetMesh());
 		}
 		// Set EquippedWeapon to the newly spawned Weapon
-		EquippedWeapon = WeaponToEquit;
+		EquippedWeapon = WeaponToEquip;
 		EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
-
 	}
-
 }
 
 void AShooterCharacter::DropWeapon()
@@ -520,62 +525,46 @@ void AShooterCharacter::DropWeapon()
 	{
 		FDetachmentTransformRules DetachmentTransformRules(EDetachmentRule::KeepWorld, true);
 		EquippedWeapon->GetItemMesh()->DetachFromComponent(DetachmentTransformRules);
+
 		EquippedWeapon->SetItemState(EItemState::EIS_Falling);
 		EquippedWeapon->ThrowWeapon();
-
 	}
-
 }
 
 void AShooterCharacter::SelectButtonPressed()
 {
-	
 	if (TraceHitItem)
 	{
-
 		TraceHitItem->StartItemCurve(this);
-
-		 // test // auto TraceHitWeapon = Cast<AWeapon>(TraceHitItem);
-		//test // SwapWeapon(TraceHitWeapon);
-
 	}
-	
 }
 
 void AShooterCharacter::SelectButtonReleased()
 {
-
-
 }
 
 void AShooterCharacter::SwapWeapon(AWeapon* WeaponToSwap)
 {
-	
-
 	DropWeapon();
 	EquipWeapon(WeaponToSwap);
-	TraceHitItem = nullptr;
-	TraceHitItemLastFrame = nullptr;
 }
 
 void AShooterCharacter::InitializeAmmoMap()
 {
 	AmmoMap.Add(EAmmoType::EAT_9mm, Starting9mmAmmo);
 	AmmoMap.Add(EAmmoType::EAT_AR, StartingARAmmo);
-
 }
 
 bool AShooterCharacter::WeaponHasAmmo()
 {
 	if (EquippedWeapon == nullptr) return false;
-	{
-		return EquippedWeapon->GetAmmo() > 0;
-	}
+
+	return EquippedWeapon->GetAmmo() > 0;
 }
 
 void AShooterCharacter::PlayFireSound()
 {
-	// Play Fire Sound
+	// Play fire sound
 	if (FireSound)
 	{
 		UGameplayStatics::PlaySound2D(this, FireSound);
@@ -584,11 +573,13 @@ void AShooterCharacter::PlayFireSound()
 
 void AShooterCharacter::SendBullet()
 {
-	// Send Bullet 
-	const USkeletalMeshSocket* BarrelSocket = EquippedWeapon->GetItemMesh()->GetSocketByName("BarrelSocket");
+	// Send bullet
+	const USkeletalMeshSocket* BarrelSocket =
+		EquippedWeapon->GetItemMesh()->GetSocketByName("BarrelSocket");
 	if (BarrelSocket)
 	{
-		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(EquippedWeapon->GetItemMesh());
+		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(
+			EquippedWeapon->GetItemMesh());
 
 		if (MuzzleFlash)
 		{
@@ -602,10 +593,16 @@ void AShooterCharacter::SendBullet()
 		{
 			if (ImpactParticles)
 			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, BeamEnd);
+				UGameplayStatics::SpawnEmitterAtLocation(
+					GetWorld(),
+					ImpactParticles,
+					BeamEnd);
 			}
 
-			UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BeamParticles, SocketTransform);
+			UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(
+				GetWorld(),
+				BeamParticles,
+				SocketTransform);
 			if (Beam)
 			{
 				Beam->SetVectorParameter(FName("Target"), BeamEnd);
@@ -616,30 +613,31 @@ void AShooterCharacter::SendBullet()
 
 void AShooterCharacter::PlayGunfireMontage()
 {
-	// Play Hit Fire Montage
+	// Play Hip Fire Montage
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && HipFireMontage)
 	{
 		AnimInstance->Montage_Play(HipFireMontage);
 		AnimInstance->Montage_JumpToSection(FName("StartFire"));
 	}
+	
+	// Start bullet fire timer for crosshairs
+	StartCrosshairBulletFire();
 }
 
 void AShooterCharacter::ReloadButtonPressed()
 {
 	ReloadWeapon();
-
 }
 
 void AShooterCharacter::ReloadWeapon()
 {
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
 	if (EquippedWeapon == nullptr) return;
+
+	// Do we have ammo of the correct type?
 	if (CarryingAmmo())
 	{
-		//FName MontageSection(TEXT("Reload SMG"));
-		// Do we have ammo of the correct type?
-
 		CombatState = ECombatState::ECS_Reloading;
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if (AnimInstance && ReloadMontage)
@@ -648,13 +646,13 @@ void AShooterCharacter::ReloadWeapon()
 			AnimInstance->Montage_JumpToSection(
 				EquippedWeapon->GetReloadMontageSection());
 		}
-
 	}
+
 }
 
 bool AShooterCharacter::CarryingAmmo()
 {
-	if (EquippedWeapon == nullptr)  return false;
+	if (EquippedWeapon == nullptr) return false;
 
 	auto AmmoType = EquippedWeapon->GetAmmoType();
 
@@ -662,30 +660,24 @@ bool AShooterCharacter::CarryingAmmo()
 	{
 		return AmmoMap[AmmoType] > 0;
 	}
+
 	return false;
 }
 
-
-
-
 // Called every frame
 void AShooterCharacter::Tick(float DeltaTime)
-
 {
 	Super::Tick(DeltaTime);
-	// Handel Interpolat for zoom hwen aining
+
+	// Handle interpolation for zoom when aiming
 	CameraInterpZoom(DeltaTime);
-	// Change look sensitivity
+	// Change look sensitivity based on aiming
 	SetLookRates();
 	// Calculate crosshair spread multiplier
 	CalculateCrosshairSpread(DeltaTime);
-	// Check OverlappeedItemCount, then trace form items
+	// Check OverlappedItemCount, then trace for items
 	TraceForItems();
 }
-		
-
-
-
 
 // Called to bind functionality to input
 void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -703,53 +695,30 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-	PlayerInputComponent->BindAction("FireButton", IE_Pressed, this, &AShooterCharacter::FireButtonPressed);
-	PlayerInputComponent->BindAction("FireButton", IE_Released, this, &AShooterCharacter::FireButtonReleased);
+	PlayerInputComponent->BindAction("FireButton", IE_Pressed, this,
+		&AShooterCharacter::FireButtonPressed);
+	PlayerInputComponent->BindAction("FireButton", IE_Released, this,
+		&AShooterCharacter::FireButtonReleased);
 
-	PlayerInputComponent->BindAction("AimingButton", IE_Pressed, this, &AShooterCharacter::AimingButtonPressed);
-	PlayerInputComponent->BindAction("AimingButton", IE_Released, this, &AShooterCharacter::AimingButtonReleased);
+	PlayerInputComponent->BindAction("AimingButton", IE_Pressed, this,
+		&AShooterCharacter::AimingButtonPressed);
+	PlayerInputComponent->BindAction("AimingButton", IE_Released, this,
+		&AShooterCharacter::AimingButtonReleased);
 
-	PlayerInputComponent->BindAction("Select", IE_Pressed, this, &AShooterCharacter::SelectButtonPressed);
-	PlayerInputComponent->BindAction("Select", IE_Released, this, &AShooterCharacter::SelectButtonReleased);
+	PlayerInputComponent->BindAction("Select", IE_Pressed, this,
+		&AShooterCharacter::SelectButtonPressed);
+	PlayerInputComponent->BindAction("Select", IE_Released, this,
+		&AShooterCharacter::SelectButtonReleased);
 
-	PlayerInputComponent->BindAction("ReloadButton", IE_Pressed, this, &AShooterCharacter::ReloadButtonPressed);
-	
+	PlayerInputComponent->BindAction("ReloadButton", IE_Pressed, this,
+		&AShooterCharacter::ReloadButtonPressed);
 }
 
 void AShooterCharacter::FinishReloading()
 {
-	// Update the Combat State
+	// TODO: Update AmmoMap
+
 	CombatState = ECombatState::ECS_Unoccupied;
-	if (EquippedWeapon == nullptr) return;
-
-	const auto AmmoType{ EquippedWeapon->GetAmmoType() };
-
-		// Update the AmmoMap
-		if (AmmoMap.Contains(AmmoType))
-
-		{
-
-			// Amount of ammo the Character is carrying of the EquippedWeapon type
-			int32 CarriedAmmo = AmmoMap[AmmoType];
-			// Space left in the magazine of EquippedWeapon
-			const int32 MagEmptySpace = EquippedWeapon->GetMagazineCapacity() - EquippedWeapon->GetAmmo();
-
-			if (MagEmptySpace > CarriedAmmo)
-			{
-				// Reload the magazine with all the ammo we are carrying
-				EquippedWeapon->ReloadAmmo(CarriedAmmo);
-				CarriedAmmo = 0;
-				AmmoMap.Add(AmmoType, CarriedAmmo);
-			}
-			else
-			{
-				// fill the magazine
-				EquippedWeapon->ReloadAmmo(MagEmptySpace);
-				CarriedAmmo -= MagEmptySpace;
-				AmmoMap.Add(AmmoType, CarriedAmmo);
-			}
-		}
-	
 }
 
 float AShooterCharacter::GetCrosshairSpreadMultiplier() const
@@ -757,21 +726,17 @@ float AShooterCharacter::GetCrosshairSpreadMultiplier() const
 	return CrosshairSpreadMultiplier;
 }
 
-void AShooterCharacter::IncrementOverlappedItemCount(int8 Amount) 
+void AShooterCharacter::IncrementOverlappedItemCount(int8 Amount)
 {
 	if (OverlappedItemCount + Amount <= 0)
 	{
 		OverlappedItemCount = 0;
 		bShouldTraceForItems = false;
-
-		//ItemGuids.Empty();
 	}
 	else
 	{
 		OverlappedItemCount += Amount;
 		bShouldTraceForItems = true;
-
-		
 	}
 }
 
@@ -784,16 +749,11 @@ FVector AShooterCharacter::GetCameraInterpLocation()
 		+ FVector(0.f, 0.f, CameraInterpElevation);
 }
 
-// No longer needed; AItem has GetInterpLocation
-	//FVector GetCameraInterpLocation();
-
 void AShooterCharacter::GetPickupItem(AItem* Item)
 {
 	auto Weapon = Cast<AWeapon>(Item);
-	
-	if (Weapon) 
+	if (Weapon)
 	{
 		SwapWeapon(Weapon);
 	}
-
 }

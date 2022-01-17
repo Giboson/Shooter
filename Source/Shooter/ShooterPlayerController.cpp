@@ -4,7 +4,7 @@
 #include "ShooterPlayerController.h"
 #include "Blueprint/UserWidget.h"
 
-AShooterPlayerController::AShooterPlayerController() 
+AShooterPlayerController::AShooterPlayerController()
 {
 
 }
