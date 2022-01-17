@@ -82,15 +82,7 @@ public:
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE EAmmoType GetAmmoType() const { return AmmoType; }
 	FORCEINLINE FName GetReloadMontageSection() const { return ReloadMontageSection; }
-	//FORCEINLINE void SetReloadMontageSection(FName Name) { ReloadMontageSection = Name; }
-	//FORCEINLINE FName GetClipBoneName() const { return ClipBoneName; }
-	//FORCEINLINE void SetClipBoneName(FName Name) { ClipBoneName = Name; }
-	//FORCEINLINE float GetAutoFireRate() const { return AutoFireRate; }
-	//FORCEINLINE UParticleSystem* GetMuzzleFlash() const { return MuzzleFlash; }
-	//FORCEINLINE USoundCue* GetFireSound() const { return FireSound; }
-	//FORCEINLINE bool GetAutomatic() const { return bAutomatic; }
-	//FORCEINLINE float GetDamage() const { return Damage; }
-	//FORCEINLINE float GetHeadShotDamage() const { return HeadShotDamage; }
+
 	
 	void ReloadAmmo(int32 Amount);
 };

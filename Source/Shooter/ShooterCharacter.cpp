@@ -757,7 +757,7 @@ float AShooterCharacter::GetCrosshairSpreadMultiplier() const
 	return CrosshairSpreadMultiplier;
 }
 
-void AShooterCharacter::IncrementOverlappedItemCount(int8 Amount) //FGuid ID)
+void AShooterCharacter::IncrementOverlappedItemCount(int8 Amount) 
 {
 	if (OverlappedItemCount + Amount <= 0)
 	{
