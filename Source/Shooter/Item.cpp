@@ -1,14 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Item.h"
-#include "Components/BoxComponent.h"
-#include "Components/WidgetComponent.h"
+#include "Item.h" // <-- Yes
+#include "Components/BoxComponent.h"	// <-- Yes
+#include "Components/WidgetComponent.h" // <-- Yes
+
 #include "Components/SphereComponent.h"
 #include "ShooterCharacter.h"
 #include "Camera/CameraComponent.h"
 
-// The Item Class .. Checking for errors
+
 
 // Sets default values
 AItem::AItem():
@@ -26,6 +27,9 @@ AItem::AItem():
 	InterpInitialYawOffset(0.f)
 
 {
+	// The Item Class .. Checking for errors 
+	// ---------------------------------------- Yes
+	
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -34,17 +38,25 @@ AItem::AItem():
 	SetRootComponent(ItemMesh);
 
 
-	// no errors >>
+	// no errors >> 
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	CollisionBox->SetupAttachment(ItemMesh);
 
 
+
+	// no errors >> 
+	PickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickubeWidget"));
+	PickupWidget->SetupAttachment(GetRootComponent());
+
+	//--------------------------------------- no
+
+
+	
 	// Set CollisionBox properties
 	CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility,ECollisionResponse::ECR_Block);
 
-	PickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupWidget"));
-	PickupWidget->SetupAttachment(GetRootComponent());
+	
 	// Set AreaSphere properties
 	AreaSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AreaSphere"));
 	AreaSphere->SetupAttachment(GetRootComponent());
