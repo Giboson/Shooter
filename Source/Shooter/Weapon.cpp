@@ -20,7 +20,7 @@ AWeapon::AWeapon():
 	//MaxRecoilRotation(20.f),
 	//bAutomatic(true)
 {
-	PrimaryActorTick.bCanEverTick = true;
+	//PrimaryActorTick.bCanEverTick = true;
 }
 void AWeapon::Tick(float DeltaTime)
 {
