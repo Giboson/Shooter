@@ -16,6 +16,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
 
+
 // Sets default values
 AShooterCharacter::AShooterCharacter() :
 	CameraBoom(CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"))),
@@ -460,6 +461,7 @@ void AShooterCharacter::TraceForItems()
 		TraceUnderCrosshairs(ItemTraceResult, HitLocation);
 		if (ItemTraceResult.bBlockingHit)
 		{
+			//UE5 --> GetActor() UE4 --> Actor
 			TraceHitItem = Cast<AItem>(ItemTraceResult.GetActor());
 			if (TraceHitItem && TraceHitItem->GetPickupWidget())
 			{
